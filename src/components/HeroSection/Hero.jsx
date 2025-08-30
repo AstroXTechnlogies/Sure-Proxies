@@ -3,67 +3,28 @@ import { Box, Grid, Typography, useColorScheme } from "@mui/material";
 import NavBar from "./NavBar";
 import HeroBody from "./HeroBody";
 import GlassCard from "../subComponents/GlassCard";
-
-import { AnimatePresence, motion, transform, useInView } from "motion/react";
-import PCMiniatureWebsite from "../Services/Solutions/PCMiniatureWebsite";
+import SectionPadding from "../subComponents/SectionPadding";
 
 const Hero = () => {
-  const { mode } = useColorScheme();
-
   return (
-    <>
-      <Grid
-        id="home"
-        container
-        direction="column"
-        sx={{
-          width: "100%",
-          maxWidth: "100vw",
-          height: "100vh",
-          position: "relative",
-          [`${mode == "dark" ? "background" : "bgcolor"}`]: `${
-            mode == "dark"
-              ? `linear-gradient(
- to bottom,
- #0a0a0a 0%,
-    #121212 50%,
-    #1a1a1a 100%
-)`
-              : "background.paper"
-          }`,
-        }}
-      >
-        <NavBar />
-        <HeroBody />
-
-        {/* Display Card with an offset */}
-      </Grid>
-
-      <Grid
-        container
-        justifyContent={"center"}
-        sx={{ mt: "-100px", zIndex: 1, position: "relative" }}
-      >
-        <Box
-          sx={{
-            width: "90%",
-            minWidth: 360,
-            maxWidth: 400,
-          }}
-        >
-          <DataOverlayCard />
-        </Box>
-      </Grid>
-    </>
+    <Box
+      id="home"
+      component={SectionPadding}
+      sx={{
+        pt: 2,
+        position: "relative",
+        width: "100%",
+        maxWidth: "100%",
+        height: "100vh",
+        overflow: "hidden",
+        background:
+          " linear-gradient(185.76deg, #110E1B 0%, #0A0810 41.19%, #030305 95.42%)",
+      }}
+    >
+      <NavBar />
+      <HeroBody />
+    </Box>
   );
 };
 
 export default Hero;
-
-const DataOverlayCard = () => {
-  return (
-    <GlassCard spacing={false} style={{ width: "auto", position: "relative" }}>
-      <PCMiniatureWebsite style={{ transform: "scale(1)" }} />
-    </GlassCard>
-  );
-};

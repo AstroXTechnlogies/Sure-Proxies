@@ -1,65 +1,13 @@
-import { addDoc, collection } from "firebase/firestore";
-import { db } from "./firebaseConfig";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { db, auth, googleProvider } from "./firebaseConfig";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { signInWithPopup } from "firebase/auth";
 
-const FREE_CONTACTS_COLLECTION = "free_contacts";
-const CONTACTS_COLLECTION = "contacts";
-const QUOTE_CONTACTS_COLLECTION = "quote_contacts";
 const NEWSLETTER_COLLECTION = "newsletters";
-
-export const addFreeContactData = async ({
-  fName,
-  lName,
-  phoneNo,
-  email,
-  message,
-  IGHandle,
-  business,
-}) => {
-  try {
-    await addDoc(collection(db, FREE_CONTACTS_COLLECTION), {
-      fName,
-      lName,
-      phoneNo,
-      email,
-      message,
-      IGHandle,
-      business,
-    });
-
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-export const addContactForm = async ({
-  fName,
-  lName,
-  phoneNo,
-  email,
-  message,
-}) => {
-  try {
-    await addDoc(collection(db, CONTACTS_COLLECTION), {
-      fName,
-      lName,
-      phoneNo,
-      email,
-      message,
-    });
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-export const addQuoteForm = async (data) => {
-  console.log(data);
-  try {
-    await addDoc(collection(db, QUOTE_CONTACTS_COLLECTION), data);
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
+const USER_COLLECTION = "users";
 
 export const addNewsletterEmail = async ({ email }) => {
   try {
@@ -68,6 +16,87 @@ export const addNewsletterEmail = async ({ email }) => {
     });
     return true;
   } catch (error) {
+    return false;
+  }
+};
+
+export const signUpWithEmail = async ({ email, psw }) => {
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, psw);
+    const userRef = doc(db, USER_COLLECTION, cred.user.uid);
+
+    // 👇 Write the document
+    await setDoc(userRef, {
+      email: cred.user.email,
+      uid: cred.user.uid,
+      createdAt: new Date(),
+    });
+    return true;
+  } catch (error) {
+    alert("Something went wrong please try again");
+    return false;
+  }
+};
+
+export const signUpWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+
+    // The signed-in user info
+    const user = result.user;
+    const userRef = doc(db, USER_COLLECTION, user.uid);
+
+    // 👇 Write the document
+    await setDoc(userRef, {
+      email: user.email,
+      uid: user.uid,
+      createdAt: new Date(),
+    });
+
+    return true;
+  } catch (error) {
+    console.error(error);
+    if (
+      error.code === "auth/popup-blocked" ||
+      error.code === "auth/popup-closed-by-user"
+    ) {
+      alert(
+        "Popup closed before completing sign in. Please sign Up using Email & Password"
+      );
+    }
+
+    return false;
+  }
+};
+
+export const signInWithEmail = async ({ email, psw }) => {
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, psw);
+
+    if (cred.user.uid) return true;
+    else return false;
+  } catch (error) {
+    alert("Something went wrong please try again");
+
+    return false;
+  }
+};
+
+export const signInWithGoogle = async () => {
+  try {
+    const cred = await signInWithPopup(auth, googleProvider);
+
+    if (cred.user.uid) return true;
+    else return false;
+  } catch (error) {
+    if (
+      error.code === "auth/popup-blocked" ||
+      error.code === "auth/popup-closed-by-user"
+    ) {
+      alert(
+        "Popup closed before completing sign in. Please sign Up using Email & Password"
+      );
+    }
     return false;
   }
 };
